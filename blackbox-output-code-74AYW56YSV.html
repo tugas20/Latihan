@@ -1,0 +1,471 @@
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game Mencipta Huruf Abjad Indonesia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      font-family: 'Baloo 2', cursive;
+    }
+    /* Custom scrollbar for better UX on mobile */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #a78bfa;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-purple-100 to-purple-50 min-h-screen flex flex-col">
+
+  <header class="bg-purple-700 text-white p-4 shadow-md sticky top-0 z-30">
+    <h1 class="text-center text-3xl font-bold select-none">Game Mencipta Huruf Abjad Indonesia</h1>
+  </header>
+
+  <main class="flex-grow max-w-4xl mx-auto p-4 flex flex-col gap-6">
+
+    <!-- Level Selector -->
+    <section aria-label="Pilih Level" class="flex flex-wrap justify-center gap-4">
+      <button
+        id="level1-btn"
+        class="level-btn bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-purple-300"
+        data-level="1"
+        aria-pressed="false"
+      >
+        Level 1 (a - g)
+      </button>
+      <button
+        id="level2-btn"
+        class="level-btn bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-purple-300"
+        data-level="2"
+        aria-pressed="false"
+      >
+        Level 2 (h - n)
+      </button>
+      <button
+        id="level3-btn"
+        class="level-btn bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-purple-300"
+        data-level="3"
+      >
+        Level 3 (o - u)
+      </button>
+      <button
+        id="level4-btn"
+        class="level-btn bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-purple-300"
+        data-level="4"
+      >
+        Level 4 (v - z)
+      </button>
+    </section>
+
+    <!-- Game Container -->
+    <section
+      id="game-container"
+      class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center gap-6"
+      aria-live="polite"
+    >
+      <div class="w-full max-w-md flex flex-col items-center gap-4">
+        <div
+          id="sound-button"
+          role="button"
+          tabindex="0"
+          aria-label="Putar suara huruf"
+          class="w-24 h-24 rounded-full bg-purple-300 flex items-center justify-center cursor-pointer shadow-md hover:bg-purple-400 focus:outline-none focus:ring-4 focus:ring-purple-500"
+        >
+          <i class="fas fa-volume-up text-purple-700 text-4xl"></i>
+        </div>
+        <p class="text-xl font-semibold text-purple-700 select-none" id="instruction-text">
+          Dengarkan suara dan buat huruf yang sesuai!
+        </p>
+      </div>
+
+      <!-- Drawing Canvas -->
+      <div class="w-full max-w-md">
+        <canvas
+          id="draw-canvas"
+          width="320"
+          height="320"
+          class="border-4 border-purple-400 rounded-lg touch-none"
+          aria-label="Area menggambar huruf"
+          role="img"
+          tabindex="0"
+        ></canvas>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex gap-4">
+        <button
+          id="clear-btn"
+          class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-red-300 flex items-center gap-2"
+          aria-label="Bersihkan area menggambar"
+        >
+          <i class="fas fa-eraser"></i> Bersihkan
+        </button>
+        <button
+          id="submit-btn"
+          class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-green-300 flex items-center gap-2"
+          aria-label="Kirim jawaban"
+        >
+          <i class="fas fa-check"></i> Kirim
+        </button>
+      </div>
+
+      <!-- Feedback -->
+      <div
+        id="feedback"
+        class="text-lg font-semibold h-8 text-center select-none"
+        aria-live="assertive"
+        aria-atomic="true"
+      ></div>
+
+      <!-- Scoreboard -->
+      <div
+        id="scoreboard"
+        class="flex justify-center gap-8 text-purple-700 font-semibold text-lg select-none"
+        aria-label="Skor permainan"
+      >
+        <div>Benar: <span id="score-correct">0</span></div>
+        <div>Salah: <span id="score-wrong">0</span></div>
+      </div>
+
+      <!-- Letter Options -->
+      <div
+        id="letter-options"
+        class="grid grid-cols-7 gap-3 w-full max-w-md justify-center"
+        role="list"
+        aria-label="Pilihan huruf abjad"
+      >
+        <!-- Letter buttons will be dynamically inserted here -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-purple-700 text-white text-center p-3 select-none">
+    &copy; 2025 Game Mencipta Huruf Abjad Indonesia
+  </footer>
+
+  <script>
+    (() => {
+      // Data for levels and letters
+      const levels = {
+        1: { letters: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] },
+        2: { letters: ['h', 'i', 'j', 'k', 'l', 'm', 'n'] },
+        3: { letters: ['o', 'p', 'q', 'r', 's', 't', 'u'] },
+        4: { letters: ['v', 'w', 'x', 'y', 'z'] },
+      };
+
+      // Indonesian alphabet pronunciation mapping (basic)
+      // Using IPA-like or simple phonetic for TTS
+      const letterSounds = {
+        a: 'a',
+        b: 'be',
+        c: 'ce',
+        d: 'de',
+        e: 'e',
+        f: 'ef',
+        g: 'ge',
+        h: 'ha',
+        i: 'i',
+        j: 'je',
+        k: 'ka',
+        l: 'el',
+        m: 'em',
+        n: 'en',
+        o: 'o',
+        p: 'pe',
+        q: 'ki',
+        r: 'er',
+        s: 'es',
+        t: 'te',
+        u: 'u',
+        v: 've',
+        w: 'we',
+        x: 'eks',
+        y: 'ye',
+        z: 'zet',
+      };
+
+      // Elements
+      const levelButtons = document.querySelectorAll('.level-btn');
+      const soundButton = document.getElementById('sound-button');
+      const instructionText = document.getElementById('instruction-text');
+      const canvas = document.getElementById('draw-canvas');
+      const ctx = canvas.getContext('2d');
+      const clearBtn = document.getElementById('clear-btn');
+      const submitBtn = document.getElementById('submit-btn');
+      const feedbackEl = document.getElementById('feedback');
+      const scoreCorrectEl = document.getElementById('score-correct');
+      const scoreWrongEl = document.getElementById('score-wrong');
+      const letterOptions = document.getElementById('letter-options');
+
+      // State
+      let currentLevel = 1;
+      let currentLetter = '';
+      let scoreCorrect = 0;
+      let scoreWrong = 0;
+      let isDrawing = false;
+      let lastX = 0;
+      let lastY = 0;
+      let selectedLetter = null;
+
+      // Setup canvas for drawing
+      function setupCanvas() {
+        // Set canvas size for high DPI screens
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = 320 * dpr;
+        canvas.height = 320 * dpr;
+        canvas.style.width = '320px';
+        canvas.style.height = '320px';
+        ctx.scale(dpr, dpr);
+
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 12;
+        ctx.strokeStyle = '#7c3aed'; // purple-700
+        clearCanvas();
+      }
+
+      function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        feedbackEl.textContent = '';
+      }
+
+      // Drawing handlers
+      function startDrawing(e) {
+        e.preventDefault();
+        isDrawing = true;
+        const { x, y } = getPointerPos(e);
+        lastX = x;
+        lastY = y;
+      }
+
+      function draw(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const { x, y } = getPointerPos(e);
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        lastX = x;
+        lastY = y;
+      }
+
+      function stopDrawing(e) {
+        e.preventDefault();
+        isDrawing = false;
+      }
+
+      function getPointerPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        let clientX, clientY;
+        if (e.touches && e.touches.length > 0) {
+          clientX = e.touches[0].clientX;
+          clientY = e.touches[0].clientY;
+        } else {
+          clientX = e.clientX;
+          clientY = e.clientY;
+        }
+        return {
+          x: clientX - rect.left,
+          y: clientY - rect.top,
+        };
+      }
+
+      // Speech synthesis for Indonesian letter sound
+      function playLetterSound(letter) {
+        if (!('speechSynthesis' in window)) {
+          alert('Browser Anda tidak mendukung fitur suara.');
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance();
+        // Indonesian language code
+        utterance.lang = 'id-ID';
+        // Use the mapped sound text or fallback to letter
+        utterance.text = letterSounds[letter] || letter;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      }
+
+      // Generate letter options buttons for current level
+      function generateLetterOptions(level) {
+        letterOptions.innerHTML = '';
+        const letters = levels[level].letters;
+        letters.forEach((ltr) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className =
+            'letter-btn bg-purple-200 hover:bg-purple-300 text-purple-800 font-bold py-2 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-purple-400 transition-colors select-none';
+          btn.textContent = ltr;
+          btn.setAttribute('aria-label', `Huruf ${ltr}`);
+          btn.dataset.letter = ltr;
+          btn.addEventListener('click', () => {
+            selectLetterOption(btn);
+          });
+          letterOptions.appendChild(btn);
+        });
+      }
+
+      // Select letter option (highlight)
+      function selectLetterOption(btn) {
+        if (selectedLetter) {
+          selectedLetter.classList.remove('bg-purple-500', 'text-white');
+          selectedLetter.classList.add('bg-purple-200', 'text-purple-800');
+        }
+        selectedLetter = btn;
+        btn.classList.remove('bg-purple-200', 'text-purple-800');
+        btn.classList.add('bg-purple-500', 'text-white');
+      }
+
+      // Pick a random letter from current level
+      function pickRandomLetter(level) {
+        const letters = levels[level].letters;
+        const randomIndex = Math.floor(Math.random() * letters.length);
+        return letters[randomIndex];
+      }
+
+      // Initialize game for a level
+      function initLevel(level) {
+        currentLevel = level;
+        scoreCorrect = 0;
+        scoreWrong = 0;
+        scoreCorrectEl.textContent = scoreCorrect;
+        scoreWrongEl.textContent = scoreWrong;
+        feedbackEl.textContent = '';
+        generateLetterOptions(level);
+        currentLetter = pickRandomLetter(level);
+        instructionText.textContent = `Dengarkan suara dan buat huruf "${currentLetter}" yang sesuai!`;
+        selectedLetter = null;
+        clearCanvas();
+        // Update aria-pressed for level buttons
+        levelButtons.forEach((btn) => {
+          btn.setAttribute('aria-pressed', btn.dataset.level == level ? 'true' : 'false');
+        });
+      }
+
+      // Check drawing similarity with letter
+      // Since we can't do real handwriting recognition here,
+      // we will check if user selected the correct letter option.
+      // The drawing is just for fun and engagement.
+      function checkAnswer() {
+        if (!selectedLetter) {
+          feedbackEl.textContent = 'Pilih huruf yang kamu buat di bawah!';
+          feedbackEl.classList.remove('text-green-600');
+          feedbackEl.classList.add('text-red-600');
+          return false;
+        }
+        if (selectedLetter.dataset.letter === currentLetter) {
+          feedbackEl.textContent = 'Benar! 🎉';
+          feedbackEl.classList.remove('text-red-600');
+          feedbackEl.classList.add('text-green-600');
+          scoreCorrect++;
+          scoreCorrectEl.textContent = scoreCorrect;
+          return true;
+        } else {
+          feedbackEl.textContent = `Salah! Huruf yang benar adalah "${currentLetter}".`;
+          feedbackEl.classList.remove('text-green-600');
+          feedbackEl.classList.add('text-red-600');
+          scoreWrong++;
+          scoreWrongEl.textContent = scoreWrong;
+          return false;
+        }
+      }
+
+      // Move to next letter in current level
+      function nextLetter() {
+        currentLetter = pickRandomLetter(currentLevel);
+        instructionText.textContent = `Dengarkan suara dan buat huruf "${currentLetter}" yang sesuai!`;
+        selectedLetter = null;
+        // Reset letter buttons highlight
+        const letterBtns = letterOptions.querySelectorAll('button');
+        letterBtns.forEach((btn) => {
+          btn.classList.remove('bg-purple-500', 'text-white');
+          btn.classList.add('bg-purple-200', 'text-purple-800');
+        });
+        clearCanvas();
+        feedbackEl.textContent = '';
+      }
+
+      // Event Listeners
+      // Level buttons
+      levelButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          initLevel(parseInt(btn.dataset.level));
+        });
+      });
+
+      // Sound button
+      soundButton.addEventListener('click', () => {
+        playLetterSound(currentLetter);
+      });
+      soundButton.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          playLetterSound(currentLetter);
+        }
+      });
+
+      // Clear button
+      clearBtn.addEventListener('click', () => {
+        clearCanvas();
+      });
+
+      // Submit button
+      submitBtn.addEventListener('click', () => {
+        const correct = checkAnswer();
+        if (correct) {
+          setTimeout(() => {
+            nextLetter();
+          }, 1500);
+        }
+      });
+
+      // Canvas drawing events
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('touchstart', startDrawing, { passive: false });
+
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('touchmove', draw, { passive: false });
+
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('touchend', stopDrawing);
+      canvas.addEventListener('touchcancel', stopDrawing);
+
+      // Keyboard accessibility for letter options
+      letterOptions.addEventListener('keydown', (e) => {
+        if (e.target.matches('button.letter-btn')) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.target.click();
+          }
+        }
+      });
+
+      // Initialize first level on load
+      window.addEventListener('load', () => {
+        setupCanvas();
+        initLevel(1);
+      });
+
+      // Responsive fix: redraw canvas on resize (clear)
+      window.addEventListener('resize', () => {
+        setupCanvas();
+      });
+    })();
+  </script>
+</body>
+</html>
